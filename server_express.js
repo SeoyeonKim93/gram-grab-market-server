@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const models = require("./models");
 const port = 8080;
 
 app.use(express.json());
@@ -9,7 +10,7 @@ app.use(cors());
 // products경로로 GET 명령을 했을 때 두번째 인자 함수가 실행 됨
 app.get("/products", (req, res) => {
   const query = req.query;
-  console.log("QUERY:", query);
+  // console.log("QUERY:", query);
   res.send({
     product: [
       {
@@ -54,5 +55,15 @@ app.get("/products/:id", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("그랩의 쇼핑몰 서버가 돌아가고 있습니다.");
+  console.log("Seoyeon's 서버가 돌아가고 있습니다.");
+  models.sequelize
+    .sync()
+    .then(() => {
+      console.log("DB 연결 성공!");
+    })
+    .catch((err) => {
+      console.error(err);
+      console.log("DB 연결 에러!");
+      process.exit();
+    });
 });
