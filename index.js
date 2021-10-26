@@ -14,7 +14,8 @@ const upload = multer({
     },
   }),
 });
-const port = 8080;
+// Heroku에서 Port 번호를 주면 그걸 쓰고, 아니면 8080을 써라
+const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
