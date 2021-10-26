@@ -20,6 +20,23 @@ app.use(express.json());
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
 
+// 슬라이딩 배너 구현하기
+// 1. 배너를 주는 API를 먼저 생성해 준다.
+app.get("/banners", (req, res) => {
+  models.Banner.findAll({
+    limit: 3,
+  })
+    .then((result) => {
+      res.send({
+        banners: result,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("에러가 발생했습니다.");
+    });
+});
+
 // products경로로 GET 명령을 했을 때 두번째 인자 함수가 실행 됨
 app.get("/products", (req, res) => {
   // findAll을  limit 없이 써버리면 DB를 다읽어서 비효율적이 코드가 되어버림
@@ -27,7 +44,15 @@ app.get("/products", (req, res) => {
     // limit: 1,
     order: [["createdAt", "DESC"]],
     // 필요한 정보들만 get할 수 있도록 한다
-    attributes: ["id", "name", "price", "createdAt", "seller", "imageurl"],
+    attributes: [
+      "id",
+      "name",
+      "price",
+      "createdAt",
+      "seller",
+      "imageurl",
+      "soldout",
+    ],
   })
     .then((result) => {
       console.log("PRODUCTS : ", result);
@@ -143,6 +168,30 @@ app.post("/image", upload.single("image"), (req, res) => {
   res.send({
     imageurl: file.path,
   });
+});
+
+// 결제하기 구현
+app.post("/purchase/:id", (req, res) => {
+  const { id } = req.params;
+  models.Product.update(
+    {
+      soldout: 1,
+    },
+    {
+      where: {
+        id,
+      },
+    }
+  )
+    .then((result) => {
+      res.send({
+        result: true,
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send("에러가 발생했습니다.");
+    });
 });
 
 app.listen(port, () => {
