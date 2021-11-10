@@ -3,6 +3,7 @@
 // commonJS 문법 사용
 module.exports = function (sequelize, DataTypes) {
   // Table(Product)생성, 인자에는 column 설정
+  // 새로운 column을 추가하면, DB Browser에서 직접 column 추가해주는 과정이 필요
   const product = sequelize.define("Product", {
     name: {
       type: DataTypes.STRING(20),
@@ -28,6 +29,10 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.INTEGER(1),
       allowNull: false,
       defaultValue: 0,
+    },
+    type: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
     },
   });
   return product;

@@ -14,6 +14,8 @@ const upload = multer({
     },
   }),
 });
+
+const detectProduct = require("./helper/detectProduct");
 // Heroku에서 Port 번호를 주면 그걸 쓰고, 아니면 8080을 써라
 const port = process.env.PORT || 8080;
 
@@ -117,26 +119,30 @@ app.post("/products", (req, res) => {
   if (!name || !description || !price || !seller || !imageurl) {
     res.status(400).send("모든 필드를 입력해주세요");
   }
-  models.Product.create({
-    name,
-    description,
-    price,
-    seller,
-    imageurl,
-  })
-    .then((result) => {
-      console.log("상품 생성 결과: ", result);
-      res.send({
-        result,
-      });
+  // mobilenet의 detectProduct 함수 사용해보기
+  detectProduct(imageurl, (type) => {
+    models.Product.create({
+      name,
+      description,
+      price,
+      seller,
+      imageurl,
+      type,
     })
-    .catch((error) => {
-      console.error(error);
-      res.status(400).send("상품 업로드에 문제가 발생했습니다.");
-    });
-  // res.send({
-  //   body: body,
-  // });
+      .then((result) => {
+        console.log("상품 생성 결과: ", result);
+        res.send({
+          result,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(400).send("상품 업로드에 문제가 발생했습니다.");
+      });
+    // res.send({
+    //   body: body,
+    // });
+  });
 });
 
 app.get("/products/:id", (req, res) => {
